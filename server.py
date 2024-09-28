@@ -3,7 +3,7 @@ import json
 import threading
 
 class TCPServer:
-    def __init__(self, host='0.0.0.0', port=1000):
+    def __init__(self, host='192.168.100.11', port=8080):
         """
         Inicializa el servidor con el host y puerto especificados, 
         y define los valores por defecto para stride y leds_qty.
@@ -66,12 +66,14 @@ class TCPServer:
 
                 print(f"Received from {client_address}: {request}")
                 response = self.process_request(request)
-                self.send_response(client_socket, response)
+                if response:
+                    self.send_response(client_socket, response)
 
-        except Exception as e:
-            print(f"Error with client {client_address}: {e}")
+        except (ConnectionResetError, ConnectionAbortedError, BrokenPipeError) as e:
+            print(f"Connection error with client {client_address}: {e}")
         finally:
             self.close_connection(client_socket, client_address)
+
 
     def receive_request(self, client_socket):
         """

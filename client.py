@@ -2,8 +2,8 @@ import socket
 import time
 
 def run_client():
-    server_host = 'localhost'  # Cambia esto si tu servidor está en otra dirección
-    server_port = 1000          # Asegúrate de que coincida con el puerto del servidor
+    server_host = '192.168.100.11'  # Cambia esto si tu servidor está en otra dirección
+    server_port = 8080          # Asegúrate de que coincida con el puerto del servidor
 
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((server_host, server_port))
