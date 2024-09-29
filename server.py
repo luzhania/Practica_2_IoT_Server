@@ -77,7 +77,7 @@ class TCPServer:
         client_socket.send(response.encode('utf-8'))
 
     def handle_get_ranges(self):
-        return json.dumps({"stride": self.stride, "LED_qty": self.leds_qty}) + "\n"
+        return json.dumps({'stride': self.stride, 'LED_qty': self.leds_qty}) + "\n"
 
     def handle_put(self, client_socket, request):
         try:
