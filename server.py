@@ -6,7 +6,7 @@ class TCPServer:
     def __init__(self, host='192.168.100.11', port=8080):
         self.host = host
         self.port = port
-        self.stride = 6
+        self.stride = 10
         self.leds_qty = 3
         self.server_socket = self.create_server_socket()
         self.sensors = []  # Lista para almacenar clientes sensores
@@ -15,6 +15,7 @@ class TCPServer:
     def create_server_socket(self):
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        server_socket.settimeout(1000000)
         return server_socket
 
     def start(self):
@@ -40,25 +41,33 @@ class TCPServer:
 
     def handle_client(self, client_socket, client_address):
         print(f"Client {client_address} connected.")
+
         try:
             while True:
                 request = self.receive_request(client_socket)
-                if not request:
-                    print(f"Client {client_address} disconnected.")
-                    break
 
-                print(f"Received from {client_address}: {request}")
-                response = self.process_request(client_socket, request)
-                if response:
-                    self.send_response(client_socket, response)
+                if request:
+                    print(f"Received from {client_address}: {request}")
+                    response = self.process_request(client_socket, request)
+                    if response:
+                        self.send_response(client_socket, response)
+                else:
+                    print(f"No request received from {client_address}, continuing...")
+                    continue
 
         except (ConnectionResetError, ConnectionAbortedError, BrokenPipeError) as e:
             print(f"Connection error with client {client_address}: {e}")
-        finally:
-            self.close_connection(client_socket, client_address)
+        
+        # finally:
+            # self.close_connection(client_socket, client_address)
+
 
     def receive_request(self, client_socket):
-        return client_socket.recv(1024).decode('utf-8')
+        try:
+            return client_socket.recv(1024).decode('utf-8')
+        except socket.timeout:
+            print(f"Socket timeout with {client_socket.getpeername()}")
+            return None
 
     def process_request(self, client_socket, request):
         if request.startswith("GET RANGES"):
@@ -77,7 +86,7 @@ class TCPServer:
         client_socket.send(response.encode('utf-8'))
 
     def handle_get_ranges(self):
-        return json.dumps({'stride': self.stride, 'LED_qty': self.leds_qty}) + "\n"
+        return f"{self.stride} {self.leds_qty}\n"
 
     def handle_put(self, client_socket, request):
         try:
