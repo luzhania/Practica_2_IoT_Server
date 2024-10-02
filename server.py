@@ -5,7 +5,7 @@ class TCPServer:
     def __init__(self, host='192.168.43.111', port=8080):
         self.host = host
         self.port = port
-        self.stride = 10
+        self.stride = 6
         self.leds_qty = 3
         self.server_socket = self.create_server_socket()
         self.sensors = []  
